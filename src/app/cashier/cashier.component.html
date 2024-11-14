@@ -1,0 +1,99 @@
+<div class="container">
+  <!-- Input to enter product code -->
+  <div class="row">
+    <div class="text-center">
+      <label class="form-label text-primary mb-3">كود الصنف</label>
+      <input type="text" [(ngModel)]="productCode" (keyup.enter)="searchProduct()" placeholder="كود الصنف"
+        class="form-control text-center">
+      <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+        {{ errorMessage }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Display product details -->
+  <div class="row mt-5">
+    <table *ngIf="showTable" class="table table-primary text-center rtl-table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">الكود</th>
+          <th scope="col">الصنف</th>
+          <th scope="col">الكميه</th>
+          <th scope="col">السعر</th>
+          <th scope="col">تعديل الكميه</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="foundProduct">
+        <tr>
+          <td>{{ foundProduct.id }}</td>
+          <td>{{ foundProduct.code }}</td>
+          <td>{{ foundProduct.name }}</td>
+          <td>{{ foundProduct.quantity }}</td>
+          <td>{{ foundProduct.price }}</td>
+          <td>
+            <input type="number" [(ngModel)]="inputQuantity" (keydown.enter)="updateQuantity()" class="form-control"
+              min="1">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+
+  <!-- Display invoice items -->
+  <div class="row mt-5">
+    <form (ngSubmit)="createInvoice()">
+      <table *ngIf="invoiceItems.length > 0" class="table table-primary text-center rtl-table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">الكود</th>
+            <th scope="col">الصنف</th>
+            <th scope="col">الكميه</th>
+            <th scope="col">السعر</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of invoiceItems" [class.table-active]="item === selectedProduct"
+            (click)="selectProduct(item)">
+            <td>
+              <input type="text" readonly [value]="item.id" class="plain-input">
+            </td>
+            <td>
+              <input type="text" readonly [value]="item.code" name="code" class="plain-input">
+            </td>
+            <td>
+              <input type="text" readonly [value]="item.name" name="name" class="plain-input">
+            </td>
+            <td>
+              <input type="text" readonly [value]="item.quantity" name="quantity" class="plain-input">
+            </td>
+            <td>
+              <input type="text" readonly [value]="item.price" name="price" class="plain-input">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Create invoice button -->
+      <div class="row mt-3">
+        <div class="text-center">
+          <button type="submit" class="btn btn-secondary">إنشاء فاتورة</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+
+  <!-- Display total -->
+  <div class="row mt-3">
+    <div class="text-center bg-success p-3">
+      <strong>
+        <h3>{{ calculateTotal() | currency: 'USD' }} : الإجمالي</h3>
+      </strong>
+    </div>
+  </div>
+</div>

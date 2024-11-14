@@ -1,0 +1,18 @@
+<div class="background">
+  <div class="shape"></div>
+  <div class="shape"></div>
+</div>
+<div>
+  
+</div>
+<form class="form-login" (ngSubmit)="onSubmit()">
+  <h3>Login Here</h3>
+
+  <label for="username">Username</label>
+  <input [(ngModel)]="loginData.email" name="email" required type="text" placeholder="Email or Phone" id="username">
+
+  <label for="password">Password</label>
+  <input required [(ngModel)]="loginData.password" name="password" type="password" placeholder="Password" id="password">
+
+  <button type="submit">Log In</button>
+</form>

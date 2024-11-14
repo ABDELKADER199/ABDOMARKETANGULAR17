@@ -1,0 +1,23 @@
+body{
+  background-color: rgb(235, 233, 233);
+}
+
+.plain-input {
+  border: none;
+  background-color: transparent;
+  width: 100%;
+  height: 25px;
+  text-align: center; /* لتوسيط النص داخل الـ input */
+  padding: 0;
+  margin: 0;
+  font-size: inherit; /* لتوريث نفس حجم الخط من الـ td */
+  font-family: inherit; /* لتوريث نفس نوع الخط من الـ td */
+  box-sizing: border-box; /* للتأكد من أن الـ input يتناسب مع عرض الـ td */
+}
+
+.plain-input:focus {
+  outline: none; /* إزالة الـ outline الأزرق عند التركيز على الـ input */
+}
+.rtl-table{
+  direction: rtl;
+}
