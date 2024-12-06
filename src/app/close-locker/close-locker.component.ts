@@ -22,8 +22,8 @@ ngOnInit(){
   this.route.queryParams.subscribe(params =>{
     this.lockerId = params['lockerId'];
     this.lockerStatus = params['lockerstatus'];
-    console.log('Locker ID:', this.lockerId);
-    console.log('Locker Status:', this.lockerStatus);
+    // console.log('Locker ID:', this.lockerId);
+    // console.log('Locker Status:', this.lockerStatus);
   });
 }
 onClose(){

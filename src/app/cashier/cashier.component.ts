@@ -1,4 +1,4 @@
-import { Router } from '@angular/router';
+import { ActivatedRoute, Event, Router } from '@angular/router';
 import { LockerService } from './../locker.service';
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Product, products } from '../module/productData';
@@ -6,6 +6,7 @@ import { jsPDF } from 'jspdf';
 import { response } from 'express';
 import { log } from 'console';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../login.service';
 @Component({
   selector: 'app-cashier',
   templateUrl: './cashier.component.html',
@@ -21,18 +22,39 @@ export class CashierComponent implements OnInit {
   showTable = false;
   selectedProduct?: Product;
   lockerId: any;
+  cashierName!: string;
+  CashierId!: number;
+  selectedDiscount: string = '';
+  discountTotal : number = 0;
 
   constructor(
     private lockerService: LockerService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private user:AuthService,
+    private AcRoute:ActivatedRoute
   ) {}
   ngOnInit(): void {
+    this.user.getCurrentUser().subscribe(
+      (user:any)=>{
+        this.cashierName = user.name;
+        this.CashierId = user.id;
+      }
+    );
     const storedItems = sessionStorage.getItem('invoiceItem');
     if (storedItems) {
       this.invoiceItems = JSON.parse(storedItems);
     }
   }
+
+  removeItem(index: number, event: MouseEvent): void {
+    event.stopPropagation();
+    this.invoiceItems.splice(index, 1);
+    sessionStorage.setItem('invoiceItem', JSON.stringify(this.invoiceItems));
+    this.applyDiscount();
+  }
+
+
 
   openNewLocker(): void {
     const newLockerData = {
@@ -77,6 +99,7 @@ export class CashierComponent implements OnInit {
         id: newId,
       };
       this.invoiceItems.push(newProduct);
+      this.applyDiscount();
     }
 
     sessionStorage.setItem('invoiceItem', JSON.stringify(this.invoiceItems));
@@ -124,8 +147,13 @@ export class CashierComponent implements OnInit {
       (response) => {
         console.log('Invoice saved successfully:', response);
         this.generatePDF();
-        sessionStorage.clear();
-        this.router.navigate(['/cashier']);
+        sessionStorage.removeItem('invoiceItem');
+        setTimeout(()=>{
+          this.router.navigate(['/cashier']).then(() =>{
+            window.location.reload();
+          });
+        }, 5000)
+
       },
       (error) => {
         console.log('Error saving invoice:', error);
@@ -143,7 +171,7 @@ export class CashierComponent implements OnInit {
       format: [80, totalHeight],
     });
 
-    const logoPath = '/assets/PharmacyLogo.jpg';
+    const logoPath = '/assets/ABDOMARKET.jpg';
     const img = new Image();
     img.src = logoPath;
 
@@ -204,7 +232,7 @@ export class CashierComponent implements OnInit {
 
       const total = this.calculateTotal();
       const totalText = `الإجمالي: $${total}`;
-
+      const totalTextDiscount = `الاجمالي : ${this.discountTotal}`;
       doc.setFontSize(14);
       doc.setFont('Amiri');
 
@@ -220,13 +248,17 @@ export class CashierComponent implements OnInit {
         align: 'center',
         baseline: 'middle',
       });
+      doc.text(totalTextDiscount, totalX + totalWidth / 2, totalY + totalHeight / 2, {
+        align: 'center',
+        baseline: 'middle',
+      });
 
       const pdfBlob = doc.output('blob'); // تحويل الـ PDF إلى Blob
       const formData = new FormData();
       formData.append('file', pdfBlob, 'invoice.pdf');
 
       // رفع الـ PDF إلى الخادم
-      this.http.post('http://127.0.0.1:8000/api/locker/upload', formData).subscribe((response: any) => {
+      this.http.post('http://192.168.1.8:8080/api/locker/upload', formData).subscribe((response: any) => {
         // بعد رفع الملف، احصل على رابط الملف من الرد
         if (response && response.fileUrl) {
           const pdfUrl = response.fileUrl;
@@ -242,7 +274,7 @@ export class CashierComponent implements OnInit {
 
 
   sendWhatsAppMessage(pdfUrl: string) {
-    this.http.post('http://127.0.0.1:8000/api/locker/send-whatsapp', { file_url: pdfUrl }).subscribe(
+    this.http.post('http://192.168.1.8:8080/api/locker/send-whatsapp', { file_url: pdfUrl }).subscribe(
       (response: any) => {
         console.log('رسالة WhatsApp أُرسِلت بنجاح:', response);
         this.router.navigate(['/cashier']);
@@ -260,6 +292,14 @@ export class CashierComponent implements OnInit {
         total + (product.price || 0) * (product.quantity || 0),
       0
     );
+    this.applyDiscount();
+  }
+  applyDiscount(): void {
+    if (this.selectedDiscount === 'employmentDiscount'){
+      this.discountTotal = this.calculateTotal() * 0.9; // Discount 10%
+    } else if (this.selectedDiscount = 'DcardDiscount'){
+      this.discountTotal = this.calculateTotal() * 0.95; // Discount 5%
+    }
   }
 
   @HostListener('window:keydown.F5', ['$event'])

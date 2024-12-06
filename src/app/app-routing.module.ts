@@ -3,13 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { CashierComponent } from './cashier/cashier.component'; // تأكد من استيراد المكون
 import { CloseLockerComponent } from './close-locker/close-locker.component';
+import { AuthGuard } from './guard/auth.guard';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'cashier', component: CashierComponent }, // تعريف المسار هنا
-  { path: 'close', component: CloseLockerComponent},
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }, // مسار افتراضي للروابط غير المعروفة
+  { path: 'login', component: LoginComponent , },
+  { path: 'cashier', component: CashierComponent , canMatch: [AuthGuard] },
+  { path: 'close', component: CloseLockerComponent , canMatch: [AuthGuard]},
+  { path: '', redirectTo: '/login', pathMatch: 'full'  },
+  { path: '**', redirectTo: '/login' },
 
 ];
 
