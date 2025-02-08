@@ -1,0 +1,35 @@
+<div class="container py-4">
+  <h2 class="text-center mb-4">الفواتير السابقة</h2>
+
+  <!-- حقل البحث -->
+  <div class="mb-4">
+    <input type="text" class="form-control" placeholder="ابحث برقم الفاتورة أو التاريخ" [(ngModel)]="searchTerm" (ngModelChange)="getHistoryReceipts()" />
+  </div>
+
+  <!-- جدول عرض الفواتير -->
+  <table class="table table-bordered table-striped">
+    <thead class="table-light">
+      <tr>
+        <th>رقم الفاتورة</th>
+        <th>تاريخ الفاتورة</th>
+        <th>الأصناف</th>
+        <th>كود الصنف</th>
+        <th>السعر الإجمالي</th>
+        <th>إجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let receipt of historyReceipts">
+        <td>{{ receipt.reseipte_id }}</td>
+        <td>{{ receipt.reseipte_date }}</td>
+        <td>{{ receipt.product_names }}</td>
+        <td>{{ receipt.product_parcodes }}</td>
+        <td> {{ receipt.total_invoice_amount }} </td>
+        <td>
+          <button (click)="viewDetails(receipt)" class="btn btn-info btn-sm">عرض</button>
+          <button (click)="printReceipt(receipt)" class="btn btn-success btn-sm ml-2">طباعة</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

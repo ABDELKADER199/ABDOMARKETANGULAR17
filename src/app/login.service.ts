@@ -11,7 +11,7 @@ export class AuthService {
   register(arg0: any) {
     throw new Error('Method not implemented.');
   }
-  private apiUrl = 'http://192.168.1.8:8080/api';
+  private apiUrl = 'http://192.168.1.15:8080/api';
 
   constructor(private http: HttpClient) {}
 
@@ -29,9 +29,13 @@ export class AuthService {
 
   getCurrentUser(): Observable<any> {
     const token = this.getToken();
-    const headers ={ Authorization : `Bearer ${token}`};
-    return this.http.get<any>(`${this.apiUrl}/users` , {headers});
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    return this.http.get<any>(`${this.apiUrl}/users`, { headers });
   }
+
 
   isLoggedIn(): boolean {
     const token = this.getToken();

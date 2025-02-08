@@ -6,6 +6,22 @@ export interface Product {
   price: number;
 }
 
+export interface Receipt {
+  items: any[];
+  reseipte_id: number;
+  reseipte_date: string;
+  product_parcodes: string;
+  product_names: string;
+  product_quantity: number;
+  product_price: number;
+  total_invoice_amount: number;
+  total_quantity:number;
+  locker_total_cash: number;
+  locker_total_computer:number;
+  locker_deficit:number;
+}
+
+
 export const products: Product[] = [
   {
     name: 'بيض احمر',

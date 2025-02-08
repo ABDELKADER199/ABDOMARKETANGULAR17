@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CloseLockerComponent } from './close-locker.component';
+import { HistoryReceiptsComponent } from './history-receipts.component';
 
-describe('CloseLockerComponent', () => {
-  let component: CloseLockerComponent;
-  let fixture: ComponentFixture<CloseLockerComponent>;
+describe('HistoryReceiptsComponent', () => {
+  let component: HistoryReceiptsComponent;
+  let fixture: ComponentFixture<HistoryReceiptsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CloseLockerComponent]
+      declarations: [HistoryReceiptsComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(CloseLockerComponent);
+    fixture = TestBed.createComponent(HistoryReceiptsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,12 +1,10 @@
-import { ActivatedRoute, Event, Router } from '@angular/router';
-import { LockerService } from './../locker.service';
-import { Component, OnInit, HostListener } from '@angular/core';
-import { Product, products } from '../module/productData';
-import { jsPDF } from 'jspdf';
-import { response } from 'express';
-import { log } from 'console';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../login.service';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { jsPDF } from 'jspdf';
+import { AuthService } from '../../login.service';
+import { Product, products } from '../../module/productData';
+import { LockerService } from '../../locker.service';
 @Component({
   selector: 'app-cashier',
   templateUrl: './cashier.component.html',
@@ -148,11 +146,11 @@ export class CashierComponent implements OnInit {
         console.log('Invoice saved successfully:', response);
         this.generatePDF();
         sessionStorage.removeItem('invoiceItem');
-        setTimeout(()=>{
-          this.router.navigate(['/cashier']).then(() =>{
-            window.location.reload();
-          });
-        }, 5000)
+        // setTimeout(()=>{
+        //   this.router.navigate(['/cashier']).then(() =>{
+        //     // window.location.reload();
+        //   });
+        // }, 5000)
 
       },
       (error) => {

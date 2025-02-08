@@ -3,10 +3,13 @@ import { BrowserModule, provideClientHydration } from '@angular/platform-browser
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { CashierComponent } from './cashier/cashier.component';
 import { HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
-import { CloseLockerComponent } from './close-locker/close-locker.component';
+import { CashierComponent } from './Employees/cashier/cashier.component';
+import { CloseLockerComponent } from './Employees/cashier/close-locker/CloseLockerComponent';
+import { InquiryComponent } from './Employees/cashier/inquiry/inquiry.component';
+import { HistoryReceiptsComponent } from './Employees/cashier/history-receipts/history-receipts.component';
+import { HeaderComponent } from './header/header.component';
 
 
 @NgModule({
@@ -15,6 +18,9 @@ import { CloseLockerComponent } from './close-locker/close-locker.component';
     CashierComponent,
     LoginComponent,
     CloseLockerComponent,
+    InquiryComponent,
+    HistoryReceiptsComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
