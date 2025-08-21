@@ -1,124 +1,94 @@
-<div class="container">
-  <!-- Input to enter product code -->
-  <div class="row">
-    <div class="text-center">
-      <div>
-        <h1 class="text-primary">الكاشير : {{cashierName}}</h1>
-        <h2 class="text-primary">كود الكاشير : {{CashierId}}</h2>
-      </div>
-      <div class="discount text-success">
-        <div class="row justify-content-center align-items-center">
-          <div class="col-auto">
-            <select
-            [(ngModel)]="selectedDiscount"
-            (ngModelChange)="applyDiscount()"
-            class="form-select"
-            >
-              <option selected hidden>اختر نوع الخصم</option>
-              <option value="employmentDiscount">مسحوبات عاملين</option>
-              <option value="DcardDiscount">D CARD</option>
-            </select>
-          </div>
-          <div class="col-auto">
-            <label class="col-form-label mt-1 pt-1">خصم</label>
+<div class="body">
+  <div class="container">
+    <div class="row">
+      <div class="text-center">
+        <div>
+          <h1 class="text-success"> {{ cashierName }} : الكاشير </h1>
+          <h2 class="text-success">كود الكاشير : {{ CashierId }}</h2>
+        </div>
+        <div class="discount text-success">
+          <div class="row justify-content-center align-items-center">
+            <div class="col-auto">
+              <select [(ngModel)]="selectedDiscount" (ngModelChange)="applyDiscount()" class="form-select">
+                <option selected hidden>اختر نوع الخصم</option>
+                <option value="employmentDiscount">مسحوبات عاملين</option>
+                <option value="DcardDiscount">D CARD</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <label class="col-form-label mt-1 pt-1">خصم</label>
+            </div>
           </div>
         </div>
-      </div>
-      <label class="form-label text-primary mb-3">كود الصنف</label>
-      <input type="text" [(ngModel)]="productCode" (keyup.enter)="searchProduct()" placeholder="كود الصنف"
-        class="form-control text-center" />
-      <div *ngIf="errorMessage" class="alert alert-danger mt-2">
-        {{ errorMessage }}
+        <label class="form-label text-primary mb-3">كود الصنف</label>
+        <input type="text" [(ngModel)]="productCode" (keyup.enter)="searchProduct()" placeholder="كود الصنف"
+          class="form-control text-center" />
+        <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+          {{ errorMessage }}
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Display product details -->
-  <div class="row mt-5">
-    <table *ngIf="showTable" class="table table-primary text-center rtl-table">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">الكود</th>
-          <th scope="col">الصنف</th>
-          <th scope="col">الكميه</th>
-          <th scope="col">السعر</th>
-          <th scope="col">تعديل الكميه</th>
-        </tr>
-      </thead>
-      <tbody *ngIf="foundProduct">
-        <tr>
-          <td>{{ foundProduct.id }}</td>
-          <td>{{ foundProduct.code }}</td>
-          <td>{{ foundProduct.name }}</td>
-          <td>{{ foundProduct.quantity }}</td>
-          <td>{{ foundProduct.price }}</td>
-          <td>
-            <input type="number" [(ngModel)]="inputQuantity" (keydown.enter)="updateQuantity()" class="form-control"
-              min="1" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Display invoice items -->
-  <div class="row mt-5">
-    <form (ngSubmit)="createInvoice()">
-      <table *ngIf="invoiceItems.length > 0" class="table table-primary text-center rtl-table">
-        <thead>
+    <div class="row mt-5 align-table">
+      <p-table [value]="invoiceItems" selectionMode="single" [(selection)]="selectedProduct" dataKey="code"
+        [tableStyle]="{ 'min-width': '50rem' }" styleClass="p-datatable-gridlines" >
+        <ng-template pTemplate="header">
           <tr>
-            <th scope="col">Action</th>
-            <th scope="col">#</th>
-            <th scope="col">الكود</th>
-            <th scope="col">الصنف</th>
-            <th scope="col">الكميه</th>
-            <th scope="col">السعر</th>
+            <th class="text-center p-3">#</th>
+            <th>الكود</th>
+            <th>الصنف</th>
+            <th>الكمية</th>
+            <th>السعر</th>
+            <th>الإجراء</th>
           </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of invoiceItems ; let i = index" [class.table-active]="item === selectedProduct"
-            (click)="selectProduct(item)">
+        </ng-template>
+        <ng-template pTemplate="body" let-item let-i="rowIndex">
+          <tr [pSelectableRow]="item">
             <td>
-              <a href="javascript:void(0)" (click)="removeItem(i , $event)">
-                <i class="fa-solid fa-trash-can"></i>
-              </a>
+              {{ item.id }}
             </td>
             <td>
-              <input type="text" readonly [value]="item.id" class="plain-input" />
+              <input type="text" name="code" value="{{ item.code }}" readonly>
             </td>
             <td>
-              <input type="text" readonly [value]="item.code" name="code" class="plain-input" />
+              <input type="text" name="name" value="{{ item.name }}" readonly>
             </td>
             <td>
-              <input type="text" readonly [value]="item.name" name="name" class="plain-input" />
+              <input value="{{ item.quantity}}" name="quantity" [(ngModel)]="invoiceItems[i].quantity"
+                (keyup.enter)="confirmQuantityUpdate($event, i)"
+                 type="number"
+                 class="form-control"
+                 [ngClass]="{'editable':editingIndex === i }"
+                 [readOnly]="editingIndex !== i"
+                 >
             </td>
             <td>
-              <input type="text" readonly [value]="item.quantity" name="quantity" class="plain-input" />
+              <input type="text" name="price" value="{{ item.price }}" readonly>
             </td>
-            <td>
-              <input type="text" readonly [value]="item.price" name="price" class="plain-input" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
-      <!-- Create invoice button -->
-      <div class="row mt-3">
-        <div class="text-center">
-          <button type="submit" class="btn btn-secondary">إنشاء فاتورة</button>
-        </div>
+            <td class="d-flex">
+              <p-button class="me-1" icon="pi pi-trash" [rounded]="true" (onClick)="removeItem(item)" />
+              <p-button icon="pi pi-pencil" [rounded]="true" (onClick)="updateQuantity(i)" />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="row mt-3">
+      <div class="text-center">
+        <button (click)="createInvoice()" class="btn btn-secondary">إنشاء فاتورة</button>
       </div>
-    </form>
-  </div>
+    </div>
 
-  <!-- Display total -->
-  <div class="row mt-3">
-    <div class="text-center bg-success p-3">
-      <strong>
-        <h3>{{ calculateTotal() | currency : "USD" }} : الإجمالي</h3>
-        <h3>{{ discountTotal | currency : "USD" }} : الإجمالي بعد الخصم</h3>
-      </strong>
+    <div class="row mt-3">
+      <div class="text-center bg-success p-3 mb-5">
+        <strong>
+          <h3>{{ calculateTotal() | currency : "USD" }} : الإجمالي</h3>
+          <h3>{{ discountTotal | currency : "USD" }} : الإجمالي بعد الخصم</h3>
+        </strong>
+      </div>
     </div>
   </div>
+
 </div>

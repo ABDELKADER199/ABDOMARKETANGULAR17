@@ -5,6 +5,8 @@ import { jsPDF } from 'jspdf';
 import { AuthService } from '../../login.service';
 import { Product, products } from '../../module/productData';
 import { LockerService } from '../../locker.service';
+import { MessageService } from 'primeng/api';
+
 @Component({
   selector: 'app-cashier',
   templateUrl: './cashier.component.html',
@@ -23,35 +25,51 @@ export class CashierComponent implements OnInit {
   cashierName!: string;
   CashierId!: number;
   selectedDiscount: string = '';
-  discountTotal : number = 0;
+  discountTotal: number = 0;
+  editingIndex: number | null = null;
 
   constructor(
     private lockerService: LockerService,
     private router: Router,
     private http: HttpClient,
-    private user:AuthService,
-    private AcRoute:ActivatedRoute
+    private user: AuthService,
+    private AcRoute: ActivatedRoute,
+    // private messageService: MessageService
   ) {}
   ngOnInit(): void {
-    this.user.getCurrentUser().subscribe(
-      (user:any)=>{
-        this.cashierName = user.name;
-        this.CashierId = user.id;
-      }
-    );
+    this.user.getCurrentUser().subscribe((user: any) => {
+      this.cashierName = user.name;
+      this.CashierId = user.id;
+    });
     const storedItems = sessionStorage.getItem('invoiceItem');
     if (storedItems) {
       this.invoiceItems = JSON.parse(storedItems);
     }
   }
 
-  removeItem(index: number, event: MouseEvent): void {
-    event.stopPropagation();
-    this.invoiceItems.splice(index, 1);
-    sessionStorage.setItem('invoiceItem', JSON.stringify(this.invoiceItems));
-    this.applyDiscount();
-  }
+  removeItem(item: any): void {
+    const index = this.invoiceItems.indexOf(item);
+    if (index > -1) {
+      this.invoiceItems.splice(index, 1);
+      sessionStorage.setItem('invoiceItem', JSON.stringify(this.invoiceItems));
+      this.applyDiscount();
+    }
+   }
 
+  // onRowSelect(event: any) {
+  //   this.messageService.add({
+  //     severity: 'info',
+  //     summary: 'Product Selected',
+  //     detail: event.data.name,
+  //   });
+  // }
+
+  // onRowUnselect(event: any) {
+  //   this.messageService.add({
+  //     severity: 'info',
+  //     summary: 'Product Unselected',
+  //     detail: event.data.name,
+  //   });
 
 
   openNewLocker(): void {
@@ -110,22 +128,24 @@ export class CashierComponent implements OnInit {
     this.inputQuantity = product.quantity; // Set input quantity to current quantity
   }
 
-  updateQuantity() {
-    if (this.selectedProduct) {
-      const existingItemIndex = this.invoiceItems.findIndex(
-        (item) => item.code === this.selectedProduct?.code
-      );
-      if (existingItemIndex !== -1) {
-        this.invoiceItems[existingItemIndex].quantity = this.inputQuantity;
-        sessionStorage.setItem(
-          'invoiceItem',
-          JSON.stringify(this.invoiceItems)
-        );
-        console.log('Updated Invoice items:', this.invoiceItems);
-      }
-    }
-    this.showTable = false; // Optionally hide the table after update
+  updateQuantity(index: number) {
+    this.editingIndex = index;
   }
+
+
+  confirmQuantityUpdate(event: Event, index: number) {
+    const keyboardEvent = event as KeyboardEvent; // التحويل هنا وليس في HTML
+
+    if (keyboardEvent.key === 'Enter') {
+      this.invoiceItems[index].quantity = this.invoiceItems[index].quantity || 1;
+      sessionStorage.setItem('invoiceItem', JSON.stringify(this.invoiceItems));
+      console.log('Updated Invoice items:', this.invoiceItems);
+
+      this.editingIndex = null;
+    }
+  }
+
+
 
   clearProductCode() {
     this.productCode = '';
@@ -151,7 +171,6 @@ export class CashierComponent implements OnInit {
         //     // window.location.reload();
         //   });
         // }, 5000)
-
       },
       (error) => {
         console.log('Error saving invoice:', error);
@@ -246,43 +265,57 @@ export class CashierComponent implements OnInit {
         align: 'center',
         baseline: 'middle',
       });
-      doc.text(totalTextDiscount, totalX + totalWidth / 2, totalY + totalHeight / 2, {
-        align: 'center',
-        baseline: 'middle',
-      });
+      doc.text(
+        totalTextDiscount,
+        totalX + totalWidth / 2,
+        totalY + totalHeight / 2,
+        {
+          align: 'center',
+          baseline: 'middle',
+        }
+      );
 
       const pdfBlob = doc.output('blob'); // تحويل الـ PDF إلى Blob
       const formData = new FormData();
       formData.append('file', pdfBlob, 'invoice.pdf');
 
       // رفع الـ PDF إلى الخادم
-      this.http.post('http://192.168.1.8:8080/api/locker/upload', formData).subscribe((response: any) => {
-        // بعد رفع الملف، احصل على رابط الملف من الرد
-        if (response && response.fileUrl) {
-          const pdfUrl = response.fileUrl;
-          this.sendWhatsAppMessage(pdfUrl);
-        } else {
-          console.error('رابط الملف غير موجود في الرد');
-        }
-      }, (error) => {
-        console.error('خطأ في رفع ملف PDF:', error);
-      });
+      this.http
+        .post('http://192.168.1.8:8080/api/locker/upload', formData)
+        .subscribe(
+          (response: any) => {
+            // بعد رفع الملف، احصل على رابط الملف من الرد
+            if (response && response.fileUrl) {
+              const pdfUrl = response.fileUrl;
+              this.sendWhatsAppMessage(pdfUrl);
+            } else {
+              console.error('رابط الملف غير موجود في الرد');
+            }
+          },
+          (error) => {
+            console.error('خطأ في رفع ملف PDF:', error);
+          }
+        );
     };
   }
 
-
   sendWhatsAppMessage(pdfUrl: string) {
-    this.http.post('http://192.168.1.8:8080/api/locker/send-whatsapp', { file_url: pdfUrl }).subscribe(
-      (response: any) => {
-        console.log('رسالة WhatsApp أُرسِلت بنجاح:', response);
-        this.router.navigate(['/cashier']);
-      },
-      (error: any) => {
-        console.log('خطأ في إرسال رسالة WhatsApp:', error);
-      }
-    );
+    this.http
+      .post('http://192.168.1.8:8080/api/locker/send-whatsapp', {
+        file_url: pdfUrl,
+      })
+      .subscribe(
+        (response: any) => {
+          console.log('رسالة WhatsApp أُرسِلت بنجاح:', response);
+        },
+        (error: any) => {
+          console.log('خطأ في إرسال رسالة WhatsApp:', error);
+        }
+      );
+    //   setTimeout(()=>{
+    //     window.location.reload();
+    // },2000);
   }
-
 
   calculateTotal(): number {
     return this.invoiceItems.reduce(
@@ -293,9 +326,9 @@ export class CashierComponent implements OnInit {
     this.applyDiscount();
   }
   applyDiscount(): void {
-    if (this.selectedDiscount === 'employmentDiscount'){
+    if (this.selectedDiscount === 'employmentDiscount') {
       this.discountTotal = this.calculateTotal() * 0.9; // Discount 10%
-    } else if (this.selectedDiscount = 'DcardDiscount'){
+    } else if ((this.selectedDiscount = 'DcardDiscount')) {
       this.discountTotal = this.calculateTotal() * 0.95; // Discount 5%
     }
   }
@@ -303,7 +336,7 @@ export class CashierComponent implements OnInit {
   @HostListener('window:keydown.F5', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     event.preventDefault(); // Prevent the default F5 action (page reload)
-    this.updateQuantity(); // Update the quantity of the selected product
+    // this.updateQuantity(this.index); // Update the quantity of the selected product
     this.showTable = true; // Optionally show the table
   }
 }

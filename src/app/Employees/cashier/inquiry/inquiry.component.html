@@ -2,11 +2,12 @@
   <div class="container">
     <div class="row">
       <h1 class="text-success text-center mt-5">الاستعلام عن صنف</h1>
-
+      <div class="formGroup">
+        <input class="text-center" type="text" [(ngModel)]="productCode" (keyup.enter)="searchProduct()" style="font-size: 20px; font-weight: bold;">
+      </div>
       <table class="table table-bordered table-hover mt-5 table-light text-center" style="direction: rtl; font-size: larger;">
         <thead>
           <tr>
-            <th>كود الصنف</th>
             <th> أسم الصنف</th>
             <th> السعر</th>
           </tr>
@@ -14,9 +15,6 @@
         </thead>
         <tbody>
           <tr style="height: 100px; text-align: center; vertical-align: middle;">
-            <td>
-              <input class="text-center" type="text" [(ngModel)]="productCode" (keyup.enter)="searchProduct()" style="font-size: 20px; font-weight: bold;">
-            </td>
             <td>
               <input class="text-center" type="text" readonly value="{{ foundProduct?.name }}"style="font-size: 20px;font-weight: bold;">
             </td>

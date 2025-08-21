@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">pharmacy-noura</string>
+    <string name="title_activity_main">pharmacy-noura</string>
+    <string name="package_name">com.user.pharmacyapp</string>
+    <string name="custom_url_scheme">com.user.pharmacyapp</string>
+</resources>

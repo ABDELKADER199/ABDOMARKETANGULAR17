@@ -1,0 +1,9 @@
+{
+  "routes": [
+    "/cashier",
+    "/close",
+    "/historyReseipt",
+    "/inquiry",
+    "/login"
+  ]
+}

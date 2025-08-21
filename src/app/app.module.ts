@@ -1,3 +1,5 @@
+import {TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -26,7 +28,9 @@ import { HeaderComponent } from './header/header.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    TableModule,
+    ButtonModule
   ],
   providers: [
     provideClientHydration(),

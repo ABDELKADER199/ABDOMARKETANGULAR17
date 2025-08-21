@@ -25,9 +25,7 @@ export class LoginComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void {}
 
   onSubmit() {
     this.authService.login(this.loginData).subscribe(
@@ -37,6 +35,12 @@ export class LoginComponent implements OnInit {
       },
       (error) => {
         console.log('Login failed', error);
+
+        if (error.error) {
+          alert('Login Error: ' + JSON.stringify(error.error));
+        } else {
+          alert('Login Error: ' + error.message);
+        }
       }
     );
   }
@@ -100,7 +104,6 @@ export class LoginComponent implements OnInit {
     );
   }
 
-
   async initializeFaceRecogition() {
     try {
       const modelPath = '/assets/models/';
@@ -133,34 +136,38 @@ export class LoginComponent implements OnInit {
       await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
 
       // التقاط الصورة وتحليلها
-      const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+      const detection = await faceapi
+        .detectSingleFace(video)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
 
       if (detection) {
         const faceDescriptor = detection.descriptor;
         // إيقاف الكاميرا
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
 
         // إرسال وصف الوجه إلى الخادم لتسجيل الدخول
-        this.authService.loginWithFace({
-          face_descriptor: JSON.stringify(faceDescriptor)
-        }).subscribe(
-          response => {
-            console.log('Face login successful', response);
-            // تخزين الرمز (token) إذا لزم الأمر
-            this.router.navigate(['/cashier']);
-          },
-          error => {
-            console.error('Face login failed:', error);
-            alert('فشل تسجيل الدخول بواسطة الوجه');
-          }
-        );
+        this.authService
+          .loginWithFace({
+            face_descriptor: JSON.stringify(faceDescriptor),
+          })
+          .subscribe(
+            (response) => {
+              console.log('Face login successful', response);
+              // تخزين الرمز (token) إذا لزم الأمر
+              this.router.navigate(['/cashier']);
+            },
+            (error) => {
+              console.error('Face login failed:', error);
+              alert('فشل تسجيل الدخول بواسطة الوجه');
+            }
+          );
       } else {
         alert('لم يتم التعرف على الوجه. حاول مرة أخرى.');
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       }
     } catch (error) {
       console.error('Error accessing camera', error);
     }
   }
-
 }

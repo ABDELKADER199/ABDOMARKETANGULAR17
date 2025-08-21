@@ -1,23 +1,66 @@
-body{
-  background-color: rgb(235, 233, 233);
-}
-
 .plain-input {
   border: none;
   background-color: transparent;
   width: 100%;
   height: 25px;
-  text-align: center; /* لتوسيط النص داخل الـ input */
+  text-align: center;
   padding: 0;
   margin: 0;
-  font-size: inherit; /* لتوريث نفس حجم الخط من الـ td */
-  font-family: inherit; /* لتوريث نفس نوع الخط من الـ td */
-  box-sizing: border-box; /* للتأكد من أن الـ input يتناسب مع عرض الـ td */
+  font-size: inherit;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .plain-input:focus {
-  outline: none; /* إزالة الـ outline الأزرق عند التركيز على الـ input */
+  outline: none;
 }
-.rtl-table{
+.rtl-table {
   direction: rtl;
+}
+
+/* .p-button-success {
+  background-color: red;
+  width: 50px;
+  padding: 5px;
+  margin-top: 0px !important;
+} */
+
+button span {
+  color: white;
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.align-table,
+td,
+th,
+tr {
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+p-table tr.p-highlight {
+  background-color: #1f0d93 !important;
+  color: white !important;
+}
+
+td input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: inherit;
+  color: inherit;
+  width: auto;
+  text-align: center;
+  opacity: 1;
+  pointer-events: none;
+}
+
+td input.editable {
+  pointer-events: auto;
+  opacity: 1;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: black;
 }
